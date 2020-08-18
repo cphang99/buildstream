@@ -146,4 +146,4 @@ jobs:
       - name: Test wsl
         shell: powershell
         run: |
-          wsl -u root -d Ubuntu-20.04 -- /bin/bash -c "echo 'foo'"
+          wsl -u root -d Ubuntu-20.04 -- /bin/bash -c "ls && apt-get update && apt-get install -y tox"
