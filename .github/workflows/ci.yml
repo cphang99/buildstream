@@ -49,6 +49,8 @@ jobs:
       CI_IMAGE_SUFFIX: master-154893333
       PYTEST_ARGS: --color=yes --integration -n 4
       TOXENV: py36,py6-plugins,py37,py37-plugins,py38,py38-plugins
+      TEST_COMMAND: "tox -- ${PYTEST_ARGS}"
+
 
     strategy:
       fail-fast: false
@@ -126,3 +128,18 @@ jobs:
               --workdir /__w/buildstream/buildstream \
               $CI_IMAGE \
               tox -e docs
+
+  wsl:
+    runs-on: windows-latest
+    env:
+      WSL_UBUNTU: https://aka.ms/wslubuntu2004
+      UBUNTU_EXE: ubuntu2004.exe
+    steps:
+      - name: Install ubuntu for wsl
+        shell: powershell
+        run: |
+          $output = ".\Ubuntu.zip"
+          (New-Object System.Net.WebClient).DownloadFile($env:WSL_UBUNTU, $output)
+          Expand-Archive .\Ubuntu.zip .\Ubuntu
+          Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+          .\Ubuntu\ubuntu2004.exe install --root
