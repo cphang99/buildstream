@@ -140,9 +140,11 @@ jobs:
         run: |
           $output = ".\Ubuntu.zip"
           (New-Object System.Net.WebClient).DownloadFile($env:WSL_UBUNTU, $output)
-          Expand-Archive .\Ubuntu.zip .\Ubuntu
+          Expand-Archive .\Ubuntu.zip C:\Windows\Ubuntu
           Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
-          .\Ubuntu\ubuntu2004.exe install --root
+          C:\Windows\Ubuntu\ubuntu2004.exe install --root
+      - name: Check out repository
+        uses: actions/checkout@v2
       - name: Test wsl
         shell: powershell
         run: |
