@@ -149,10 +149,6 @@ jobs:
           - plugins
           - remotecache
           - remoteexecution
-          - sourcecache
-          - sources
-          - testutils
-          - _sourcetests
     steps:
       - name: Install ubuntu for wsl
         shell: powershell
