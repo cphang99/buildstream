@@ -134,6 +134,25 @@ jobs:
     env:
       WSL_UBUNTU: https://aka.ms/wslubuntu2004
       UBUNTU_EXE: ubuntu2004.exe
+    strategy:
+      fail-fast: false
+      matrix:
+        test_suites:
+          - artifactcache
+          - cachekey
+          - elements
+          - examples
+          - format
+          - frontend
+          - integration
+          - internals
+          - plugins
+          - remotecache
+          - remoteexecution
+          - sourcecache
+          - sources
+          - testutils
+          - _sourcetests
     steps:
       - name: Install ubuntu for wsl
         shell: powershell
@@ -162,4 +181,4 @@ jobs:
       - name: Test wsl
         shell: powershell
         run: |
-          wsl -u root -d Ubuntu-20.04 -- /bin/bash -c "tox -- --color=yes --integration -n 2"
+          wsl -u root -d Ubuntu-20.04 -- /bin/bash -c "tox -- --color=yes -k ${{ matrix.test_suites }}"
