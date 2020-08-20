@@ -147,7 +147,15 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Get necessary packages
+        shell: powershell
+        run: | 
+          wsl -u root -d Ubuntu-20.04 -- /bin/bash -c "apt-get update && apt-get install -y build-essential python3-dev tox"
+      - name: Get buildbox
+        shell: powershell
+        run: | 
+          wsl -u root -d Ubuntu-20.04 -- /bin/bash -c "wget https://buildbox-casd-binaries.nyc3.cdn.digitaloceanspaces.com/buildbox-x86_64-linux-0.0.14-872f221d.tar.xz && tar -C /usr/bin -xf buildbox-x86_64-linux-0.0.14-872f221d.tar.xz"
       - name: Test wsl
         shell: powershell
         run: |
-          wsl -u root -d Ubuntu-20.04 -- /bin/bash -c "apt-get update && apt-get install -y build-essential python3-dev tox && wget https://buildbox-casd-binaries.nyc3.cdn.digitaloceanspaces.com/buildbox-x86_64-linux-0.0.14-872f221d.tar.xz && tar -C /usr/bin -xf buildbox-x86_64-linux-0.0.14-872f221d.tar.xz && tox -- --color=yes --integration -n 2"
+          wsl -u root -d Ubuntu-20.04 -- /bin/bash -c "tox -- --color=yes --integration -n 2"
