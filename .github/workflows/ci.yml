@@ -143,6 +143,7 @@ jobs:
           Expand-Archive .\Ubuntu.zip C:\Windows\Ubuntu
           Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
           C:\Windows\Ubuntu\ubuntu2004.exe install --root
+          wsl --set-default-version 2
       - name: Check out repository
         uses: actions/checkout@v2
         with:
