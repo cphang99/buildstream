@@ -39,90 +39,54 @@ on: push
 #
 # * Similar to GitLab, GitHub also has a container registry, so we can move our
 #   testsuite images there if/when we want to fully migrate off of GitLab.
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+  DOCKER_IMAGE_VERSION: master-154893333
 
 jobs:
   tests:
     runs-on: ubuntu-20.04
-
-    env:
-      CI_IMAGE_PREFIX: registry.gitlab.com/buildstream/buildstream-docker-images/testsuite
-      CI_IMAGE_SUFFIX: master-154893333
-      PYTEST_ARGS: --color=yes --integration -n 4
-      TOXENV: py36,py6-plugins,py37,py37-plugins,py38,py38-plugins
-
     strategy:
       fail-fast: false
       matrix:
-        ci_image_name:
+        platform:
           - debian:10
           - fedora:30
           - fedora:31
           - ubuntu:18.04
           - centos:7.7.1908
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
-        # BuildStream requires tags to be able to find its version.
-        with:
-          fetch-depth: 0
-      # XXX: Our run command looks like a monstrosity because we need to
-      # specify `--device /dev/fuse` and there's no way to do that using the
-      # `container` directive directly.
-      # This is also why we have forward environment variables by hand.
-      # TODO: In future, we should find a way to simplify this. See some
-      # relevant discussion at:
-      # https://github.community/t/how-to-run-privileged-docker-container/16431.
-      # XXX: Value of `volume` and `workdir` must match how GitHub
-      # Actions sets up paths.
-      # TODO: Have test user pre-created in the test image.
-      - name: Run tox inside a container
-        run: |
-          docker run \
-              --privileged \
-              --device /dev/fuse \
-              --env PYTEST_ARGS \
-              --env TOXENV \
-              --volume /home/runner/work:/__w \
-              --workdir /__w/buildstream/buildstream \
-              "$CI_IMAGE_PREFIX"-${{ matrix.ci_image_name }}-"$CI_IMAGE_SUFFIX" \
-              bash -c 'useradd -Um buildstream && chown -R buildstream:buildstream . && su buildstream -c "tox -- $PYTEST_ARGS"'
-
-  mypy:
-    runs-on: ubuntu-20.04
-    container: registry.gitlab.com/buildstream/buildstream-docker-images/testsuite-fedora:30-master-154893333
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
-      - name: Run tox inside a container
-        run: tox -e mypy
-
-  lint:
-    runs-on: ubuntu-20.04
-    container: registry.gitlab.com/buildstream/buildstream-docker-images/testsuite-fedora:30-master-154893333
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
-      - name: Run tox inside a container
-        run: tox -e format-check,lint
-
-  docs:
-    runs-on: ubuntu-20.04
+        pytest_args:
+          - tox -- --color=yes --integration -n 4
+        include:
+          - platform: fedora:30
+            pytest_args: tox -e mypy
+          - platform: fedora:30
+            pytest_args: tox -e format-check,lint
+          - platform: fedora:30
+            pytest_args: tox -e docs
     env:
-      CI_IMAGE: registry.gitlab.com/buildstream/buildstream-docker-images/testsuite-fedora:30-master-154893333
-      BST_FORCE_SESSION_REBUILD: 1
+      PLATFORM: ${{ matrix.platform }}
+      PYTEST_ARGS: ${{ matrix.pytest_args }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
         # BuildStream requires tags to be able to find its version.
         with:
           fetch-depth: 0
-      - name: Run tox inside a container
+      - name: run tests
         run: |
-          docker run \
-              --privileged \
-              --device /dev/fuse \
-              --volume /home/runner/work:/__w \
-              --workdir /__w/buildstream/buildstream \
-              $CI_IMAGE \
-              tox -e docs
+          docker-compose up --exit-code-from tests tests
+  overnight:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        # BuildStream requires tags to be able to find its version.
+        with:
+          fetch-depth: 0
+      - name: run tests
+        run: |
+          docker-compose up --exit-code-from no_cache no_cache

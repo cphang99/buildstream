@@ -1,0 +1,29 @@
+version: '3.4'
+x-base-platform-template: &base-platform
+    privileged: true
+    devices:
+    - /dev/fuse:/dev/fuse
+
+services:
+  tests:
+    <<: *base-platform
+    build:
+      context: .
+      target: test_setup
+      args:
+        PLATFORM: $PLATFORM
+        DOCKER_IMAGE_VERSION: $DOCKER_IMAGE_VERSION
+    command: >
+      '${PYTEST_ARGS}'
+  no_cache:
+    <<: *base-platform
+    build:
+      context: .
+      target: no_cache_setup
+      args:
+        PLATFORM: fedora:31
+        BST_EXT_REF: 1.93.4
+        FD_SDK_REF: freedesktop-sdk-20.08beta.1-buildstream2
+        DOCKER_IMAGE_VERSION: $DOCKER_IMAGE_VERSION
+    command: >
+      make -C freedesktop-sdk
