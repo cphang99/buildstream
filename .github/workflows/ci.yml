@@ -71,6 +71,7 @@ jobs:
             test_cmd: tox -e format-check,lint
           - platform: fedora:30
             test_cmd: tox -e docs
+            bst-plugins-experimental-version: 1.93.4
           # Ensure that tests also pass without `--develop` flag.
           - test-name: no-usedevelop
             platform: fedora:31
