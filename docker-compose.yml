@@ -14,7 +14,7 @@ services:
         PLATFORM: $PLATFORM
         DOCKER_IMAGE_VERSION: master-154893333
     environment:
-      - TOX_ENV=$TOX_ENV
+      - TOXENV=$TOXENV
       - BST_PLUGINS_EXPERIMENTAL_VERSION=$BST_PLUGINS_EXPERIMENTAL_VERSION
     command: >
       '${TEST_CMD}'

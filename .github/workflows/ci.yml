@@ -59,7 +59,7 @@ jobs:
         test_cmd:
           - tox -- --color=yes --integration -n 4
         toxenv:
-          - py36-nocover,py37-nocover,py38-nocover
+          - py36,py6-plugins,py37,py37-plugins,py38,py38-plugins
         bst-plugins-experimental-version:
           - 1.93.4
         allow-failure:
@@ -85,7 +85,7 @@ jobs:
     env:
       PLATFORM: ${{ matrix.platform }}
       TEST_CMD: ${{ matrix.test_cmd }}
-      TOX_ENV: ${{ matrix.toxenv }}
+      TOXENV: ${{ matrix.toxenv }}
       BST_PLUGINS_EXPERIMENTAL_VERSION: ${{ matrix.bst-plugins-experimental-version }}
     steps:
       - name: Check out repository
@@ -95,7 +95,7 @@ jobs:
           fetch-depth: 0
       - name: run tests
         run: |
-          docker-compose up --exit-code-from tests tests
+          docker-compose run tests
   tests-fedora-missing-deps:
     runs-on: ubuntu-20.04
     env:
@@ -109,4 +109,4 @@ jobs:
           fetch-depth: 0
       - name: run tests
         run: |
-          docker-compose up --exit-code-from fedora_missing_deps fedora_missing_deps
+          docker-compose run fedora_missing_deps
